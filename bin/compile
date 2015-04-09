@@ -103,6 +103,12 @@ bpwatch start pre_compile
   source $BIN_DIR/steps/hooks/pre_compile
 bpwatch stop pre_compile
 
+# Run pre addon hooks
+for addon in $(cat $BIN_DIR/addons/pre/.addons); do
+    source $BIN_DIR/addons/pre/$addon/bin/detect
+    source $BIN_DIR/addons/pre/$addon/bin/compile
+done
+
 # If no requirements given, assume `setup.py develop`.
 if [ ! -f requirements.txt ]; then
   echo "-e ." > requirements.txt
@@ -189,6 +195,11 @@ set-default-env PYTHONPATH /app/
 # Install sane-default script for WEB_CONCURRENCY environment variable.
 cp $ROOT_DIR/vendor/python.webconcurrency.sh $WEBCONCURRENCY_PROFILE_PATH
 
+# Run post addon hooks
+for addon in $(cat $BIN_DIR/addons/post/.addons); do
+    source $BIN_DIR/addons/post/$addon/bin/detect
+    source $BIN_DIR/addons/post/$addon/bin/compile
+done
 
 # Experimental post_compile hook.
 bpwatch start post_compile
