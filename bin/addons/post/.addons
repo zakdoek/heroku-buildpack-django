@@ -2,3 +2,4 @@ build-node
 build-grunt
 build-aws
 build-data
+build-clean
