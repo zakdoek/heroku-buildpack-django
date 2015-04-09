@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+# See README.md for info on running these tests.
+
+testDetectWithGruntFile() {
+  detect "grunt-file"
+  assertCaptured "Found web application in client directory"
+  assertCapturedSuccess
+}
+
+testClientConfig() {
+  compile_config "client-config"
+  assertCaptured "Load config from .client"
+  assertCaptured "Client dir: myclient"
+  assertCapturedSuccess
+}
+
+testNoPackageJson() {
+  compile "no-package-json"
+  assertCaptured "No package.json found; Adding grunt to new package.json"
+  assertTrue 'No package.json found' '[ -e ${compile_dir}/client/package.json ]'
+  assertCapturedSuccess
+}
+
+testNoGruntDependency() {
+  compile "no-grunt"
+  assertCaptured "Augmenting package.json with grunt and grunt-cli"
+  assertEquals "1" "$(grep \"grunt.*:.*~0.4.5\" ${compile_dir}/client/package.json | wc -l)"
+  assertEquals "1" "$(grep \"grunt-cli.*:.*~0.1.13\" ${compile_dir}/client/package.json | wc -l)"
+  assertCapturedSuccess
+}
+
+testNoGruntOverwrite() {
+  compile "no-grunt-overwrite"
+  assertCaptured "Augmenting package.json with grunt and grunt-cli"
+  assertEquals "1" "$(grep \"grunt.*:.*0.4.5\" ${compile_dir}/client/package.json | wc -l)"
+  assertEquals "1" "$(grep \"grunt-cli.*:.*0.1.9\" ${compile_dir}/client/package.json | wc -l)"
+  assertCapturedSuccess
+}
+
+testNoBower() {
+  compile "no-bower"
+  assertCaptured "Augmenting package.json with bower"
+  assertEquals "1" "$(grep \"bower.*:.*~1.3.12\" ${compile_dir}/client/package.json | wc -l)"
+  assertCapturedSuccess
+}
+
+testNpmNext() {
+  compile "stable-node"
+  assertCaptured "Installing the 'next' version of npm"
+  assertCaptured "Using npm version:"
+  assertCapturedSuccess
+}
+
+testNoVersion() {
+  compile "no-version"
+  assertCaptured "PRO TIP: Specify a node version in package.json"
+  assertCaptured "Defaulting to latest stable node"
+  assertCapturedSuccess
+}
+
+testDangerousRangeStar() {
+  compile "dangerous-range-star"
+  assertCaptured "PRO TIP: Avoid using semver ranges like '*'"
+  assertCaptured "Requested node range:  *"
+  assertCaptured "Resolved node version: 0.10"
+  assertCapturedSuccess
+}
+
+testDangerousRangeGreaterThan() {
+  compile "dangerous-range-greater-than"
+  assertCaptured "PRO TIP: Avoid using semver ranges starting with '>'"
+  assertCaptured "Requested node range:  >"
+  assertCaptured "Resolved node version: 0.10."
+  assertCapturedSuccess
+}
+
+testRangeWithSpace() {
+  compile "range-with-space"
+  assertCaptured "Requested node range:  >= 0.8.x"
+  assertCaptured "Resolved node version: 0.10."
+  assertCapturedSuccess
+}
+
+testStableVersion() {
+  compile "stable-node"
+  assertNotCaptured "PRO TIP: Avoid using semver"
+  assertNotCaptured "PRO TIP: Specify"
+  assertCaptured "Resolved node version"
+  assertCapturedSuccess
+}
+
+testUnstableVersion() {
+  compile "unstable-version"
+  assertCaptured "Requested node range:  >0.11.0"
+  assertCaptured "Resolved node version: 0.11."
+  assertCapturedSuccess
+}
+
+testInvalidDependency() {
+  compile "invalid-dependency"
+  assertCaptured "not in the npm registry"
+  assertCapturedError 1 ""
+}
+
+testNodeModulesCached() {
+  cache=$(mktmpdir)
+  compile "caching" $cache
+  assertCaptured "Caching node"
+  assertEquals "1" "$(ls -1 $cache/ | grep node | wc -l)"
+}
+
+testModulesCheckedIn() {
+  compile "modules-checked-in"
+  assertCaptured "Found existing node_modules directory; skipping cache"
+  assertCaptured "Rebuilding any native dependencies"
+  assertCapturedSuccess
+}
+
+testUserConfig() {
+  compile "userconfig"
+  assertCaptured "https://www.google.com/"
+  assertCaptured "registry error"
+  assertCapturedError 1 ""
+}
+
+testEnvDirNotImported() {
+  compile "stable-node"
+  assertNotCaptured "Exporting config vars to environment"
+  assertCapturedSuccess
+}
+
+testEnvDirExported() {
+  env_dir=$(mktmpdir)
+  echo "chicken" > $env_dir/birds
+  echo "koi" > $env_dir/fish
+  compile "stable-node" "$(mktmpdir)" $env_dir
+  assertCaptured "Exporting config vars to environment"
+  assertCapturedSuccess
+}
+
+testCompass() {
+  compile "stable-node"
+  RVT=$(ruby -e "require 'rbconfig';puts \"#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
+  assertCaptured "Installing Compass"
+  assertCaptured "Caching ruby gems directory for future builds"
+  assertTrue 'Grunt not found' '[ -e ${compile_dir}/client/.gem/${RVT}/bin/compass ]'
+  assertCapturedSuccess
+}
+
+testBowerInstallCache() {
+  cache=$(mktmpdir)
+  compile "no-bower" $cache
+  assertCaptured "Install bower dependencies"
+  assertCaptured "Caching bower cache directory for future builds"
+  assertTrue 'Bower not cached' '[ -d $cache/.bowercache ]'
+  assertCapturedSuccess
+}
+
+testGruntRun() {
+  compile "no-bower"
+  assertCaptured "Running grunt build task"
+  assertTrue 'Dist folder not found' '[ -d ${compile_dir}/client/dist ]'
+  assertCapturedSuccess
+}
+
+# Utils
+
+pushd $(dirname 0) >/dev/null
+bp_dir=$(pwd)
+popd >/dev/null
+
+source ${bp_dir}/vendor/test-utils/test-utils
+
+mktmpdir() {
+  dir=$(mktemp -t testXXXXX)
+  rm -rf $dir
+  mkdir $dir
+  echo $dir
+}
+
+detect() {
+  capture ${bp_dir}/bin/detect ${bp_dir}/test/$1
+}
+
+compile_dir=""
+
+compile_config() {
+  compile_dir=$(mktmpdir)
+  cp -r ${bp_dir}/test/$1/. ${compile_dir}
+  capture ${bp_dir}/bin/compile ${compile_dir} ${2:-$(mktmpdir)} ${3:-"NONE"}
+}
+
+compile() {
+  compile_dir=$(mktmpdir)
+  mkdir -p ${compile_dir}/client
+  cp -r ${bp_dir}/test/$1/. ${compile_dir}/client
+  capture ${bp_dir}/bin/compile ${compile_dir} ${2:-$(mktmpdir)} ${3:-"NONE"} "nocl"
+}
+
+assertFile() {
+  assertEquals "$1" "$(cat ${compile_dir}/$2)"
+}
+
+source ${bp_dir}/vendor/shunit2/shunit2

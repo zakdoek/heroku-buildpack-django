@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+echo "Building aws"
+
+cwd_cache=$PWD
+cd $BUILD_DIR
+
+# Env is already active
+if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+    
+    # Create prefixes
+    media_bucket_suffix=$(echo -n "$AWS_ACCESS_KEY_ID" | md5sum | awk '{print $1}')
+    static_bucket_suffix=$(echo -n "$AWS_ACCESS_KEY_ID$(date "+%s")" | md5sum | awk '{print $1}')
+
+    # Generate container-locations
+    export AWS_STORAGE_BUCKET_NAME="$AWS_BUCKET_PREFIX-media-$media_bucket_suffix"
+    export AWS_STORAGE_STATIC_BUCKET_NAME="$AWS_BUCKET_PREFIX-static-$static_bucket_suffix"
+    echo "export AWS_STORAGE_BUCKET_NAME=$AWS_STORAGE_BUCKET_NAME" > $BUILD_DIR/.profile.d/aws.sh
+    echo "export AWS_STORAGE_STATIC_BUCKET_NAME=$AWS_STORAGE_STATIC_BUCKET_NAME" >> $BUILD_DIR/.profile.d/aws.sh
+
+    # Create buckets
+    project/manage.py create_bucket $AWS_STORAGE_BUCKET_NAME  --settings=$DJANGO_SETTINGS_MODULE
+    project/manage.py create_bucket $AWS_STORAGE_STATIC_BUCKET_NAME --settings=$DJANGO_SETTINGS_MODULE 
+
+    # Populate static bucket
+    export BUILDER_RESULT_DIR=$BUILD_DIR/$GRUNT_BUILD_DIR
+    project/manage.py collectstatic --settings=$DJANGO_SETTINGS_MODULE --noinput
+
+    # TODO: cleanup old buckets
+fi
+
+cd $cwd_cache

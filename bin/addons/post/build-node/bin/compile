@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# set -e            # fail fast
+# set -o pipefail   # dont ignore exit codes when piping output
+# set -x          # enable debugging
+
+# Enable extended globbing
+shopt -s extglob
+
+# Configure directories
+cache_dir=$CACHE_DIR
+env_dir=$ENV_DIR
+bp_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
+
+# Client build directory
+build_dir=$BUILD_DIR
+
+# Cache the current dir
+current_dir_cache=$PWD
+current_home_cache=$HOME
+
+# Make deps and cached deps dirs and ensure their presence
+build_dependencies=$build_dir/build_dependencies
+build_dependencies_cache=$cache_dir/build_dependencies
+mkdir -p $build_dependencies
+mkdir -p $build_dependencies_cache
+
+# Load some convenience functions like status(), echo(), and indent()
+source $bp_dir/bin/common.sh
+
+# Fix leak
+status "Resetting git environment"
+unset GIT_DIR
+
+# Ignore NODE_ENV
+unset NODE_ENV
+
+# Output npm debug info on error
+trap cat_npm_debug_log ERR
+
+# Normalize the packages
+source $bp_dir/bin/steps/install-node.sh
+
+# Install compass
+source $bp_dir/bin/steps/install-compass.sh
+
+# Install local node environment
+source $bp_dir/bin/steps/install-node-local.sh
+
+# Install bower dependencies
+source $bp_dir/bin/steps/install-bower.sh
+
+status ""

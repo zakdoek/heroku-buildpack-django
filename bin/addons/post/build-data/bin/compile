@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+echo "Do data ops"
+cwd_cache=$PWD
+cd $BUILD_DIR
+project/manage.py migrate --noinput --settings=$DJANGO_SETTINGS_MODULE
+cd $cwd_cache

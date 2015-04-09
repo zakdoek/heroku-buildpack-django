@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Activate env
+for env_var in $(ls $ENV_DIR); do
+   export "$env_var=$(cat $ENV_DIR/$env_var)"
+done
+
+# Set a database url
+export TEST_DB_URL="sqlite:///$BUILD_DIR/test.sqlite3"
+
+if [ -n "$GRUNT_BUILD_COMMAND" ]; then
+    grunt_build_command=$GRUNT_BUILD_COMMAND
+else
+    grunt_build_command="default"
+fi
+
+echo "Running grunt $grunt_build_command"
+
+cwd_cache=$PWD
+cd $BUILD_DIR
+grunt $grunt_build_command
+cd $cwd_cache
