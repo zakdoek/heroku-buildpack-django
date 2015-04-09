@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+echo "Building aws"
+
+cwd_cache=$PWD
+cd $BUILD_DIR
+
+# Env is already active
+if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
+    
+    # Create prefixes
+    static_suffix=$(echo -n "$(date "+%s")" | md5sum | awk '{print $1}')
+
+    # Generate container-locations
+    export RACKSPACE_MEDIA_CONTAINER="$RACKSPACE_CDN_CONTAINER_PREFIX-media"
+    export RACKSPACE_STATIC_CONTAINER="$RACKSPACE_CDN_CONTAINER_PREFIX-static-$static_suffix"
+    echo "export RACKSPACE_MEDIA_CONTAINER=$RACKSPACE_MEDIA_CONTAINER" > $BUILD_DIR/.profile.d/cloudfiles.sh
+    echo "export RACKSPACE_STATIC_CONTAINER=$RACKSPACE_STATIC_CONTAINER" >> $BUILD_DIR/.profile.d/cloudfiles.sh
+
+    # Create buckets
+    project/manage.py container_create $RACKSPACE_MEDIA_CONTAINER --settings=$DJANGO_SETTINGS_MODULE
+    project/manage.py container_create $RACKSPACE_STATIC_CONTAINER --settings=$DJANGO_SETTINGS_MODULE 
+
+    # Populate static bucket
+    export BUILDER_RESULT_DIR=$BUILD_DIR/$GRUNT_BUILD_DIR
+    project/manage.py collectstatic --settings=$DJANGO_SETTINGS_MODULE --noinput
+
+    # TODO: cleanup old buckets
+fi
+
+cd $cwd_cache

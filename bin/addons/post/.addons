@@ -1,5 +1,5 @@
 build-node
 build-grunt
-build-aws
+build-cloudfiles
 build-data
 build-clean
