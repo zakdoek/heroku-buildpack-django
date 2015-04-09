@@ -105,7 +105,6 @@ bpwatch stop pre_compile
 
 # Run pre addon hooks
 for addon in $(cat $BIN_DIR/addons/pre/.addons); do
-    source $BIN_DIR/addons/pre/$addon/bin/detect
     source $BIN_DIR/addons/pre/$addon/bin/compile
 done
 
@@ -197,7 +196,6 @@ cp $ROOT_DIR/vendor/python.webconcurrency.sh $WEBCONCURRENCY_PROFILE_PATH
 
 # Run post addon hooks
 for addon in $(cat $BIN_DIR/addons/post/.addons); do
-    source $BIN_DIR/addons/post/$addon/bin/detect
     source $BIN_DIR/addons/post/$addon/bin/compile
 done
 
