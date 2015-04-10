@@ -2,6 +2,7 @@
 
 echo "Building aws"
 
+addon_bin=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cwd_cache=$PWD
 cd $BUILD_DIR
 
@@ -13,7 +14,10 @@ if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
 
     # Generate container-locations
     export RACKSPACE_MEDIA_CONTAINER="$RACKSPACE_CDN_CONTAINER_PREFIX-media"
-    export RACKSPACE_STATIC_CONTAINER="$RACKSPACE_CDN_CONTAINER_PREFIX-static-$static_suffix"
+    export RACKSPACE_CDN_CONTAINER_STATIC_PREFIX="$RACKSPACE_CDN_CONTAINER_PREFIX-static"
+    export RACKSPACE_CDN_CONTAINER_STATIC_KEEP_NUM=${RACKSPACE_CDN_CONTAINER_STATIC_KEEP_NUM:-2}
+    export RACKSPACE_CDN_CONTAINER_STATIC_MIN_AGE=${RACKSPACE_CDN_CONTAINER_STATIC_MIN_AGE:-604800}
+    export RACKSPACE_STATIC_CONTAINER="$RACKSPACE_CDN_CONTAINER_STATIC_PREFIX-$static_suffix"
     echo "export RACKSPACE_MEDIA_CONTAINER=$RACKSPACE_MEDIA_CONTAINER" > $BUILD_DIR/.profile.d/cloudfiles.sh
     echo "export RACKSPACE_STATIC_CONTAINER=$RACKSPACE_STATIC_CONTAINER" >> $BUILD_DIR/.profile.d/cloudfiles.sh
 
@@ -25,7 +29,8 @@ if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
     export BUILDER_RESULT_DIR=$BUILD_DIR/$GRUNT_BUILD_DIR
     project/manage.py collectstatic --settings=$DJANGO_SETTINGS_MODULE --noinput
 
-    # TODO: cleanup old buckets
+    # Cleanup old buckets
+    $addon_bin/delete-containers
 fi
 
 cd $cwd_cache

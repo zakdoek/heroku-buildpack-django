@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+"""
+Gets outdated containers
+"""
+
+import os
+import datetime
+import pyrax
+
+_PARSER_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+
+
+def get_container_last_modified(container):
+    """
+    Get the last modified datetime for a container
+    """
+    first_obj = container.get_objects(limit=1)[0]
+    return datetime.datetime.strptime(first_obj.last_modified, _PARSER_FORMAT)
+
+
+def get_outdated_containers(prefix, num_to_keep=2):
+    """
+    Generates all a list of all containers matching a certain prefix, except
+    the last "<num_to_keep>" ones.
+    """
+    most_recent = []
+
+    for container_name in pyrax.cloudfiles.list_containers():
+        if container_name.startswith(prefix):
+            container = pyrax.cloudfiles.get_container(container_name)
+            last_modified = get_container_last_modified(container)
+
+            most_recent.append((last_modified, container))
+
+            most_recent.sort()
+            most_recent.reverse()
+
+            if len(most_recent) > num_to_keep:
+                yield most_recent.pop()
+
+
+if __name__ == "__main__":
+    identity_type = "rackspace"
+    user = os.getenv("RACKSPACE_USERNAME")
+    api_key = os.getenv("RACKSPACE_API_KEY")
+    container_prefix = os.getenv("RACKSPACE_CDN_CONTAINER_STATIC_PREFIX")
+    keep_num = int(os.getenv("RACKSPACE_CDN_CONTAINER_STATIC_KEEP_NUM"))
+    max_age = int(os.getenv("RACKSPACE_CDN_CONTAINER_STATIC_MIN_AGE"))
+    must_be_older_than = (datetime.datetime.now() -
+                          datetime.timedelta(seconds=max_age))
+
+    pyrax.set_setting("identity_type", identity_type)
+    pyrax.set_credentials(user, api_key)
+
+    for age, container in get_outdated_containers(container_prefix, keep_num):
+        if age < must_be_older_than:
+            print "Deleting container \"%s\"." % container.name
+            container.delete_all_objects()
+            container.delete()
+        else:
+            print "Container \"%s\" too young, retaining" % container.name
