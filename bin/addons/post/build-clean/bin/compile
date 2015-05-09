@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 echo "Cleaning build"
-ls -a $BUILD_DIR | grep -E -v "^(\.|\.\.|\.apt|\.release|project|\.heroku|newrelic.ini|Procfile|.profile.d|uwsgi\.ini)$" | xargs rm -rf | indent
+ls -a $BUILD_DIR | grep -E -v "^(\.|\.\.|\.apt|\.release|project|\.heroku|newrelic.ini|Procfile|.profile.d|uwsgi\.ini|CHECKS)$" | xargs rm -rf | indent
