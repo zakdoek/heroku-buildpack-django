@@ -14,7 +14,7 @@ def get_container_last_modified(container):
     """
     Get the last modified datetime for a container
     """
-    objects = container.get_objects(limit=1)[0]
+    objects = container.get_objects(limit=1)
     if len(objects):
         return datetime.datetime.strptime(objects[0].last_modified,
                                           _PARSER_FORMAT)
