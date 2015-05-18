@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Building aws"
+echo "Building cloudfiles"
 
 addon_bin=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cwd_cache=$PWD

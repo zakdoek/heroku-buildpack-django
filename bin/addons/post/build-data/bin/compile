@@ -7,6 +7,11 @@ if [ -n $DATABASE_URL ]; then
     cwd_cache=$PWD
     cd $BUILD_DIR
     project/manage.py migrate --noinput --settings=$DJANGO_SETTINGS_MODULE
+
+    if [ -n "$DJANGO_CREATE_CACHE_TABLE" ]; then
+        project/manage.py createcachetable --settings=$DJANGO_SETTINGS_MODULE
+    fi
+
     cd $cwd_cache
 
 fi
