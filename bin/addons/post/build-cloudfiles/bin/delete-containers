@@ -59,7 +59,10 @@ if __name__ == "__main__":
     for age, container in get_outdated_containers(container_prefix, keep_num):
         if age < must_be_older_than:
             print "Deleting container \"%s\"." % container.name
-            container.delete_all_objects()
-            container.delete()
+            try:
+                container.delete_all_objects()
+                container.delete()
+            except pyrax.exceptions.ClientException:
+                print ("Could not delete %s" % container.name)
         else:
             print "Container \"%s\" too young, retaining" % container.name
