@@ -1,5 +1,5 @@
-build-node
-build-grunt
-build-cloudfiles
-build-data
-build-clean
+node
+build
+cloudfiles
+data
+clean
