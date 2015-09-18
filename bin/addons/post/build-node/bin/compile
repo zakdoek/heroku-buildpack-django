@@ -47,7 +47,4 @@ source $bp_dir/bin/steps/install-compass.sh
 # Install local node environment
 source $bp_dir/bin/steps/install-node-local.sh
 
-# Install bower dependencies
-source $bp_dir/bin/steps/install-bower.sh
-
 status ""

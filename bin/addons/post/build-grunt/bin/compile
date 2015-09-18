@@ -8,15 +8,11 @@ done
 # Set a database url
 export TEST_DB_URL="sqlite:///$BUILD_DIR/test.sqlite3"
 
-if [ -n "$GRUNT_BUILD_COMMAND" ]; then
-    grunt_build_command=$GRUNT_BUILD_COMMAND
-else
-    grunt_build_command="default"
+if [[ -n "$BUILD_COMMAND" ]]; then
+    echo "Running $BUILD_COMMAND..."
+
+    cwd_cache=$PWD
+    cd $BUILD_DIR
+    $BUILD_COMMAND
+    cd $cwd_cache
 fi
-
-echo "Running grunt $grunt_build_command"
-
-cwd_cache=$PWD
-cd $BUILD_DIR
-grunt $grunt_build_command
-cd $cwd_cache

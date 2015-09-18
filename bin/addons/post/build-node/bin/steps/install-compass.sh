@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# TODO: Factor into an own addon to include build time gems
 # Install compass
 status "Installing Compass"
 

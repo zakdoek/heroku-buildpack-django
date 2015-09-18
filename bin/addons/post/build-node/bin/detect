@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-if [ -f $1/grunt.js ] || [ -f $1/Gruntfile.js ] || [ -f $1/Gruntfile.coffee ]; then
-  echo "Found web application in client directory" && exit 0
+if [[ -f "$1/package.json" ]]; then
+    echo "A package.json file was found, installing node!" && exit 0
 fi
