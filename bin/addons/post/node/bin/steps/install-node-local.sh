@@ -8,7 +8,7 @@ if test -d $build_dependencies_cache/node_modules; then
 
     status "Prune old and unused dependencies"
     cd $build_dir
-    npm prune 2>&1 | indent
+    npm prune --production 2>&1 | indent
     cd $current_dir_cache
 
     # Test if different node than original build
@@ -34,7 +34,7 @@ fi
 
     status "Installing dependencies"
     # Make npm output to STDOUT instead of its default STDERR
-    npm install --userconfig $build_dir/.npmrc 2>&1 | indent
+    npm install --production --userconfig $build_dir/.npmrc 2>&1 | indent
 
     cd $current_dir_cache
 )
