@@ -13,9 +13,6 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
     cd $BUILD_DIR
-    ls -lha
-    echo "Start make"
-    make build
-    # $BUILD_COMMAND
+    $BUILD_COMMAND
     cd $cwd_cache
 fi
