@@ -13,6 +13,7 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
     cd $BUILD_DIR
+    env
     $BUILD_COMMAND
     cd $cwd_cache
 fi
