@@ -13,7 +13,9 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
 
-    ls -lha .apt/usr/bin
+    export PATH=$PWD/.apt/usr/bin:$PATH
+    echo $PATH
+    ls -lha $PWD/.apt/usr/bin
 
     cd $BUILD_DIR
     $BUILD_COMMAND
