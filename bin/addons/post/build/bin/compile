@@ -18,6 +18,7 @@ if [[ -n "$BUILD_COMMAND" ]]; then
     echo "Contents of profile dir"
     ls -lha "$BUILD_DIR/.profile.d/"
     echo "Contents of apt bootstrap"
+    echo "Home=$HOME"
     cat $BUILD_DIR/.profile.d/000_apt.sh
 
     $BUILD_COMMAND
