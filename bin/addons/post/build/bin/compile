@@ -19,9 +19,10 @@ if [[ -n "$BUILD_COMMAND" ]]; then
     ls -lha $PWD/.apt/usr/bin
     which make
     which convert
+    which convert.im6
 
     cd $BUILD_DIR
     # $BUILD_COMMAND
-    $cwd_cache/.apt/usr/bin/make
+    make test_make
     cd $cwd_cache
 fi
