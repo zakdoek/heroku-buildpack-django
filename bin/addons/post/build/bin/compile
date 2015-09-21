@@ -12,15 +12,13 @@ if [[ -n "$BUILD_COMMAND" ]]; then
     echo "Running $BUILD_COMMAND..."
 
     cwd_cache=$PWD
-    cd $BUILD_DIR
-    echo "Show path"
-    echo "$PATH"
-    echo "Contents of profile dir"
-    ls -lha "$BUILD_DIR/.profile.d/"
-    echo "Contents of apt bootstrap"
-    echo "Home=$HOME"
-    cat $BUILD_DIR/.profile.d/000_apt.sh
 
+    home_cache=$HOME
+    HOME=$BUILD_DIR
+    source $BUILD_DIR/.profile.d/000_apt.sh
+    HOME=$home_cache
+
+    cd $BUILD_DIR
     $BUILD_COMMAND
     cd $cwd_cache
 fi
