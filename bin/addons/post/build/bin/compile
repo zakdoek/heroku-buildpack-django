@@ -17,6 +17,8 @@ if [[ -n "$BUILD_COMMAND" ]]; then
     echo $PATH
     echo $PWD
     ls -lha $PWD/.apt/usr/bin
+    which make
+    which convert
 
     cd $BUILD_DIR
     # $BUILD_COMMAND
