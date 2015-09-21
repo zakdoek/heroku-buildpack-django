@@ -17,6 +17,10 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     echo "PATH"
     echo "$PATH"
+    echo "Trace build dir"
+    ls -lha $BUILD_DIR
+    echo "Trace cwd dir"
+    ls -lha $cwd_cache
 
     cd $BUILD_DIR
     $BUILD_COMMAND
