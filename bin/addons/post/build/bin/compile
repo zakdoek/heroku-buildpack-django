@@ -13,14 +13,7 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
 
-    export PATH=$BUILD_DIR/.apt/usr/bin:$PATH
-
-    echo "PATH"
-    echo "$PATH"
-    echo "Trace build dir"
-    ls -lha $BUILD_DIR
-    echo "Trace cwd dir"
-    ls -lha $cwd_cache
+    ls -lha .apt/usr/bin
 
     cd $BUILD_DIR
     $BUILD_COMMAND
