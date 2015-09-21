@@ -13,10 +13,7 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
 
-    home_cache=$HOME
-    HOME=$BUILD_DIR
-    source $BUILD_DIR/.profile.d/000_apt.sh
-    HOME=$home_cache
+    export PATH=$BUILD_DIR/.apt/usr/bin:$PATH
 
     echo "PATH"
     echo "$PATH"
