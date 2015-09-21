@@ -18,6 +18,9 @@ if [[ -n "$BUILD_COMMAND" ]]; then
     source $BUILD_DIR/.profile.d/000_apt.sh
     HOME=$home_cache
 
+    echo "PATH"
+    echo "$PATH"
+
     cd $BUILD_DIR
     $BUILD_COMMAND
     cd $cwd_cache
