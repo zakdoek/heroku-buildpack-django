@@ -13,16 +13,7 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
 
-    export PATH=$PWD/.apt/usr/bin:$PATH
-    echo $PATH
-    echo $PWD
-    ls -lha $PWD/.apt/usr/bin
-    which make
-    which convert
-    which convert.im6
-
     cd $BUILD_DIR
-    # $BUILD_COMMAND
-    make test_make
+    $BUILD_COMMAND
     cd $cwd_cache
 fi
