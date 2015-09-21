@@ -13,7 +13,13 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     cwd_cache=$PWD
     cd $BUILD_DIR
-    env
+    echo "Show path"
+    echo "$PATH"
+    echo "Contents of profile dir"
+    ls -lha "$BUILD_DIR/.profile.d/"
+    echo "Contents of apt bootstrap"
+    cat $BUILD_DIR/.profile.d/000_apt.sh
+
     $BUILD_COMMAND
     cd $cwd_cache
 fi
