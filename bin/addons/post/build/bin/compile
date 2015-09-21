@@ -15,9 +15,11 @@ if [[ -n "$BUILD_COMMAND" ]]; then
 
     export PATH=$PWD/.apt/usr/bin:$PATH
     echo $PATH
+    echo $PWD
     ls -lha $PWD/.apt/usr/bin
 
     cd $BUILD_DIR
-    $BUILD_COMMAND
+    # $BUILD_COMMAND
+    $cwd_cache/.apt/usr/bin/make
     cd $cwd_cache
 fi
