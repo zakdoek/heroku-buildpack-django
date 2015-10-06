@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# Enable extended globbing
+shopt -s extglob
+
+# Configure directories
+cache_dir=$CACHE_DIR
+env_dir=$ENV_DIR
+bp_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
+
+# Client build directory
+build_dir=$BUILD_DIR
+
+# Cache the current dir
+current_dir_cache=$PWD
+current_home_cache=$HOME
+
+# Make deps and cached deps dirs and ensure their presence
+build_dependencies=$build_dir/build_dependencies
+build_dependencies_cache=$cache_dir/build_dependencies
+mkdir -p $build_dependencies
+mkdir -p $build_dependencies_cache
+
+# Ensuring environment
+RUBY_VERSION=$(ruby -e "require 'rbconfig';puts \"\#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
+export GEM_HOME=$build_dependencies/.gem/$RUBY_VERSION
+PATH="$GEM_HOME/bin:$PATH"
+
+if [[ -d "$build_dependencies_cache/ruby" ]]; then
+    echo "----> Restoring ruby gems directory from cache"
+    rm -rf $build_dependencies/.gem  # Ensure none is present
+    cp -r $build_dependencies_cache/ruby $build_dependencies/.gem
+else
+    echo "----> Compass not present, installing a fresh one"
+fi
+
+cd $build_dependencies
+
+HOME=$build_dependencies gem install bundler --user-install --no-rdoc --no-ri 2>&1 | indent
+
+bundle install --frozen --system
+
+HOME=$current_home_cache # Reset home to current dir
+cd $current_dir_cache
+
+# Cache ruby gems
+rm -rf $build_dependencies_cache/ruby
+
+# If app has a gems directory, cache it.
+if [[ -d "$build_dependencies/.gem" ]]; then
+    echo "----> Caching ruby gems directory for future builds"
+    cp -r $build_dependencies/.gem $build_dependencies_cache/ruby
+fi

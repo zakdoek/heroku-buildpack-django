@@ -41,8 +41,9 @@ trap cat_npm_debug_log ERR
 # Normalize the packages
 source $bp_dir/bin/steps/install-node.sh
 
+# Comment out, can be installed via ruby addon
 # Install compass
-source $bp_dir/bin/steps/install-compass.sh
+# source $bp_dir/bin/steps/install-compass.sh
 
 # Install local node environment
 source $bp_dir/bin/steps/install-node-local.sh

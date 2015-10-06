@@ -5,7 +5,7 @@
 status "Installing Compass"
 
 # Ensuring environment
-RUBY_VERSION=$(ruby -e "require 'rbconfig';puts \"#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
+RUBY_VERSION=$(ruby -e "require 'rbconfig';puts \"\#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
 export GEM_HOME=$build_dependencies/.gem/$RUBY_VERSION
 PATH="$GEM_HOME/bin:$PATH"
 

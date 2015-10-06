@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# bin/detect <build-dir>
+
+if [[ -f "$1/Gemfile" ]]; then
+    echo "A gemfile was found, installing ruby gems!"
+    exit 0
+else
+    echo "No gemfile was found, skipping!"
+    exit 1
+fi
