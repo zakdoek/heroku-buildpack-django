@@ -22,7 +22,7 @@ mkdir -p $build_dependencies
 mkdir -p $build_dependencies_cache
 
 # Ensuring environment
-RUBY_VERSION=$(ruby -e "require 'rbconfig';puts \"\#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
+RUBY_VERSION=$(ruby -e "require 'rbconfig';puts \"#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
 export GEM_HOME=$build_dependencies/.gem/$RUBY_VERSION
 export PATH="$GEM_HOME/bin:$PATH"
 
