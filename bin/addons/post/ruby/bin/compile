@@ -24,6 +24,7 @@ mkdir -p $build_dependencies_cache
 # Ensuring environment
 RUBY_VERSION=$(ruby -e "require 'rbconfig';puts \"\#{RUBY_ENGINE}/#{RbConfig::CONFIG['ruby_version']}\"")
 export GEM_HOME=$build_dependencies/.gem/$RUBY_VERSION
+mkdir -p $GEM_HOME
 PATH="$GEM_HOME/bin:$PATH"
 
 if [[ -d "$build_dependencies_cache/ruby" ]]; then
@@ -31,14 +32,14 @@ if [[ -d "$build_dependencies_cache/ruby" ]]; then
     rm -rf $build_dependencies/.gem  # Ensure none is present
     cp -r $build_dependencies_cache/ruby $build_dependencies/.gem
 else
-    echo "----> Compass not present, installing a fresh one"
+    echo "----> Bundle not present, installing a fresh one"
 fi
 
 cd $build_dependencies
 
 HOME=$build_dependencies gem install bundler --user-install --no-rdoc --no-ri 2>&1 | indent
 
-bundle install --frozen --system
+HOME=$build_dependencies bundle install --frozen --system
 
 HOME=$current_home_cache # Reset home to current dir
 cd $current_dir_cache
