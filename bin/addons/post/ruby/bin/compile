@@ -36,7 +36,10 @@ fi
 
 cd $build_dependencies
 
-HOME=$build_dependencies gem install bundler --user-install --no-rdoc --no-ri 2>&1 | indent
+HOME=$build_dependencies gem install bundler --user-install --no-rdoc --no-ri 2>&1
+
+echo "PATH ECHO"
+echo $PATH
 
 HOME=$build_dependencies bundle install --frozen --system
 
