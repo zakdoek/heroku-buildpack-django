@@ -41,6 +41,7 @@ HOME=$build_dependencies gem install bundler --user-install --no-rdoc --no-ri 2>
 HOME=$build_dependencies bundle install --frozen --system
 
 HOME=$current_home_cache # Reset home to current dir
+
 cd $current_dir_cache
 
 # Cache ruby gems
