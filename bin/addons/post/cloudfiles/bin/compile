@@ -27,10 +27,33 @@ if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
 
     # Populate static bucket
     export ASSETS_BUILD_DIR_FULL=$BUILD_DIR/$ASSETS_BUILD_DIR
-    project/manage.py collectstatic --settings=$DJANGO_SETTINGS_MODULE --noinput
+    project/manage.py collectstatic --settings=$DJANGO_SETTINGS_MODULE --noinput 
 
-    # Cleanup old buckets
+    # Link domain alias for media and static (Get own spam reputation)
+    if [[ -n "$RACKSPACE_CDN_ALIAS_DOMAIN" ]]; then
+        media_hash=$(echo "$RACKSPACE_MEDIA_CONTAINER" | md5sum | awk '{print $1}')
+        static_hash=$(echo "$RACKSPACE_STATIC_CONTAINER" | md5sum | awk '{print $1}')
+
+        media_subdomain="media-$media_hash"
+        static_subdomain="static-$static_hash"
+
+        if [[ -n "$RACKSPACE_CDN_ALIAS_PREFIX" ]]; then
+            media_subdomain="$media_subdomain.$RACKSPACE_CDN_ALIAS_PREFIX"
+            static_subdomain="$static_subdomain.$RACKSPACE_CDN_ALIAS_PREFIX"
+        fi
+
+        export RACKSPACE_CDN_ALIAS_MEDIA="$media_hash.$RACKSPACE_CDN_ALIAS_DOMAIN"
+        export RACKSPACE_CDN_ALIAS_STATIC="$static_hash.$RACKSPACE_CDN_ALIAS_DOMAIN"
+        echo "export RACKSPACE_CDN_ALIAS_MEDIA=$RACKSPACE_CDN_ALIAS_MEDIA" >> $BUILD_DIR/.profile.d/cloudfiles.sh
+        echo "export RACKSPACE_CDN_ALIAS_STATIC=$RACKSPACE_CDN_ALIAS_STATIC" >> $BUILD_DIR/.profile.d/cloudfiles.sh
+
+        $addon_bin/link-domain $RACKSPACE_MEDIA_CONTAINER $RACKSPACE_CDN_ALIAS_MEDIA
+        $addon_bin/link-domain $RACKSPACE_STATIC_CONTAINER $RACKSPACE_CDN_ALIAS_STATIC
+    fi
+    
+    # Cleanup old buckets, and linkage
     $addon_bin/delete-containers
+    
 fi
 
 cd $cwd_cache

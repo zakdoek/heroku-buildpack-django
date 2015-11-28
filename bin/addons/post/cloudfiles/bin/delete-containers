@@ -10,6 +10,30 @@ import pyrax
 _PARSER_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
+def get_domain():
+    """
+    Fetch the domain
+    """
+    domain_name = os.getenv("RACKSPACE_CDN_ALIAS_DOMAIN")
+    if domain_name:
+        for domain_obj in pyrax.cloud_dns.get_domain_iterator():
+            if domain_obj == domain_name:
+                return domain_obj
+    return None
+
+
+def delete_container_links(container):
+    """
+    Delete links on the container
+    """
+    domain = get_domain()
+    if domain:
+        for record in pyrax.cloud_dns.get_record_iterator(domain):
+            if record.type == "CNAME" and record.data == container.cdn_uri:
+                print("Unlinking %s" % record.name)
+                record.delete()
+
+
 def get_container_last_modified(container):
     """
     Get the last modified datetime for a container
@@ -60,6 +84,7 @@ if __name__ == "__main__":
         if age < must_be_older_than:
             print "Deleting container \"%s\"." % container.name
             try:
+                delete_container_links(container)
                 container.delete_all_objects()
                 container.delete()
             except pyrax.exceptions.ClientException:

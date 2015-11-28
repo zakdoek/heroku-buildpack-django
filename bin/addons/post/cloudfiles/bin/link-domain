@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+"""
+Link a domain to a container
+"""
+
+import os
+import sys
+import pyrax
+
+
+def get_domain(domain):
+    """
+    Get the domain
+    """
+    for domain_obj in pyrax.cloud_dns.list():
+        if domain_obj.name == domain:
+            return domain_obj
+
+    return None
+
+
+def cname_exists(domain, cname):
+    """
+    Test for cname
+    """
+    try:
+        domain.find_record("CNAME", cname)
+        return True
+    except pyrax.exceptions.DomainRecordNotFound:
+        return False
+
+
+def get_container_domain(name):
+    """
+    Test if container exists and return url. Else return None
+    """
+    try:
+        return pyrax.cloudfiles.get(name).cdn_uri
+    except pyrax.exceptions.NoSuchContainer:
+        return None
+
+
+if __name__ == "__main__":
+    # Getting args
+    if len(sys.argv) != 3:
+        print("Usage: link-domain CONTAINER_NAME CNAME_ALIAS")
+        exit(1)
+    container_name = sys.argv[1]
+    cname = sys.argv[2]
+
+    # Setting creds
+    identity_type = "rackspace"
+    user = os.getenv("RACKSPACE_USERNAME")
+    api_key = os.getenv("RACKSPACE_API_KEY")
+
+    # Getting domain
+    domain_name = ".".join(cname.split(".")[-2:])
+    domain = get_domain(domain_name)
+    if domain is None:
+        print("ERROR: The domain \"%s\" could not be found" % domain_name)
+        exit(1)
+
+    # Test cname
+    if cname_exists(domain, cname):
+        print("ERROR: The record CNAME => %s already exists." % cname)
+        exit(1)
+
+    # Test container
+    container_domain = get_container_domain(container_name)
+    if container_domain is None:
+        print("ERROR: Could not get the domain for the container %s."
+              % container_name)
+        exit(1)
+
+    # Domain, cname and container exists, can safely proceed
+    print("Linking %s to %s" % cname, container_domain)
+    domain.add_record({
+        "type": "CNAME",
+        "name": cname,
+        "data": container_domain,
+    })
