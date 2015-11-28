@@ -35,7 +35,7 @@ def get_container_domain(name):
     Test if container exists and return url. Else return None
     """
     try:
-        return pyrax.cloudfiles.get(name).cdn_uri
+        return pyrax.cloudfiles.get(name).cdn_uri.replace("http://", "")
     except pyrax.exceptions.NoSuchContainer:
         return None
 
