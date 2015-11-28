@@ -31,6 +31,7 @@ if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
 
     # Link domain alias for media and static (Get own spam reputation)
     if [[ -n "$RACKSPACE_CDN_ALIAS_DOMAIN" ]]; then
+        echo "Linking STATIC and MEDIA to clean(er) uri's"
         media_hash=$(echo "$RACKSPACE_MEDIA_CONTAINER" | md5sum | awk '{print $1}')
         static_hash=$(echo "$RACKSPACE_STATIC_CONTAINER" | md5sum | awk '{print $1}')
 
