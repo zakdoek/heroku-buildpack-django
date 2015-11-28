@@ -53,6 +53,9 @@ if __name__ == "__main__":
     user = os.getenv("RACKSPACE_USERNAME")
     api_key = os.getenv("RACKSPACE_API_KEY")
 
+    pyrax.set_setting("identity_type", identity_type)
+    pyrax.set_credentials(user, api_key)
+
     # Getting domain
     domain_name = ".".join(cname.split(".")[-2:])
     domain = get_domain(domain_name)
