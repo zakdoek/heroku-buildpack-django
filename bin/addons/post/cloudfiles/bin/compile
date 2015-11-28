@@ -43,8 +43,8 @@ if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
             static_subdomain="$static_subdomain.$RACKSPACE_CDN_ALIAS_PREFIX"
         fi
 
-        export RACKSPACE_CDN_ALIAS_MEDIA="$media_hash.$RACKSPACE_CDN_ALIAS_DOMAIN"
-        export RACKSPACE_CDN_ALIAS_STATIC="$static_hash.$RACKSPACE_CDN_ALIAS_DOMAIN"
+        export RACKSPACE_CDN_ALIAS_MEDIA="$media_subdomain.$RACKSPACE_CDN_ALIAS_DOMAIN"
+        export RACKSPACE_CDN_ALIAS_STATIC="$static_subdomain.$RACKSPACE_CDN_ALIAS_DOMAIN"
         echo "export RACKSPACE_CDN_ALIAS_MEDIA=$RACKSPACE_CDN_ALIAS_MEDIA" >> $BUILD_DIR/.profile.d/cloudfiles.sh
         echo "export RACKSPACE_CDN_ALIAS_STATIC=$RACKSPACE_CDN_ALIAS_STATIC" >> $BUILD_DIR/.profile.d/cloudfiles.sh
 
