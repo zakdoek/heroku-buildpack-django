@@ -22,7 +22,7 @@ def get_domain():
     return None
 
 
-def delete_container_links(container):
+def delete_container_links(container, retain):
     """
     Delete links on the container
     """
@@ -30,8 +30,12 @@ def delete_container_links(container):
     if domain:
         for record in pyrax.cloud_dns.get_record_iterator(domain):
             if record.type == "CNAME" and record.data == container.cdn_uri:
-                print("Unlinking %s" % record.name)
-                record.delete()
+                if retain is not None:
+                    print("Re-link %s" % record.name)
+                    record.update(data=retain)
+                else:
+                    print("Unlinking %s" % record.name)
+                    record.delete()
 
 
 def get_container_last_modified(container):
@@ -74,8 +78,15 @@ if __name__ == "__main__":
     container_prefix = os.getenv("RACKSPACE_CDN_CONTAINER_STATIC_PREFIX")
     keep_num = int(os.getenv("RACKSPACE_CDN_CONTAINER_STATIC_KEEP_NUM"))
     max_age = int(os.getenv("RACKSPACE_CDN_CONTAINER_STATIC_MIN_AGE"))
+    retain_static_cdn_cname = os.getenv("RACKSPACE_CDN_ALIAS_STATIC_RETAIN")
+    static_alias = os.getenv("RACKSPACE_CDN_ALIAS_STATIC")
     must_be_older_than = (datetime.datetime.now() -
                           datetime.timedelta(seconds=max_age))
+
+    if retain_static_cdn_cname and static_alias:
+        retain_static_cdn_cname = static_alias
+    else:
+        retain_static_cdn_cname = None
 
     pyrax.set_setting("identity_type", identity_type)
     pyrax.set_credentials(user, api_key)
@@ -84,7 +95,7 @@ if __name__ == "__main__":
         if age < must_be_older_than:
             print "Deleting container \"%s\"." % container.name
             try:
-                delete_container_links(container)
+                delete_container_links(container, retain_static_cdn_cname)
                 container.delete_all_objects()
                 container.delete()
             except pyrax.exceptions.ClientException:
