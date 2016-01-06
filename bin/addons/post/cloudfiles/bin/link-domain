@@ -35,7 +35,7 @@ def get_container_domain(name):
     Test if container exists and return url. Else return None
     """
     try:
-        return pyrax.cloudfiles.get(name).cdn_uri
+        return pyrax.cloudfiles.get(name).cdn_uri.replace("http://", "")
     except pyrax.exceptions.NoSuchContainer:
         return None
 
@@ -53,6 +53,9 @@ if __name__ == "__main__":
     user = os.getenv("RACKSPACE_USERNAME")
     api_key = os.getenv("RACKSPACE_API_KEY")
 
+    pyrax.set_setting("identity_type", identity_type)
+    pyrax.set_credentials(user, api_key)
+
     # Getting domain
     domain_name = ".".join(cname.split(".")[-2:])
     domain = get_domain(domain_name)
@@ -62,8 +65,8 @@ if __name__ == "__main__":
 
     # Test cname
     if cname_exists(domain, cname):
-        print("ERROR: The record CNAME => %s already exists." % cname)
-        exit(1)
+        print("The record CNAME => %s already exists." % cname)
+        exit(0)
 
     # Test container
     container_domain = get_container_domain(container_name)
@@ -73,7 +76,7 @@ if __name__ == "__main__":
         exit(1)
 
     # Domain, cname and container exists, can safely proceed
-    print("Linking %s to %s" % cname, container_domain)
+    print("Linking %s to %s" % (cname, container_domain))
     domain.add_record({
         "type": "CNAME",
         "name": cname,

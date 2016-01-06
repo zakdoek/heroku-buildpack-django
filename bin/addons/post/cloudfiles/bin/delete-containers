@@ -26,10 +26,11 @@ def delete_container_links(container, retain):
     """
     Delete links on the container
     """
+    container_uri = container.cdn_uri.replace("http://", "")
     domain = get_domain()
     if domain:
         for record in pyrax.cloud_dns.get_record_iterator(domain):
-            if record.type == "CNAME" and record.data == container.cdn_uri:
+            if record.type == "CNAME" and record.data == container_uri:
                 if retain is not None:
                     print("Re-link %s" % record.name)
                     record.update(data=retain)
