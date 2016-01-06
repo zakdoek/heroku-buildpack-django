@@ -23,11 +23,14 @@ ENV_DIR=$3
 VIRTUALENV_LOC=".heroku/venv"
 LEGACY_TRIGGER="lib/python2.7"
 
-DEFAULT_PYTHON_VERSION="python-2.7.10"
+DEFAULT_PYTHON_VERSION="python-2.7.11"
 DEFAULT_PYTHON_STACK="cedar"
 PYTHON_EXE="/app/.heroku/python/bin/python"
 PIP_VERSION="7.1.2"
-SETUPTOOLS_VERSION="18.3.2"
+SETUPTOOLS_VERSION="18.7.1"
+
+# Common Problem Warnings
+export WARNINGS_LOG=$(mktemp)
 
 # Setup bpwatch
 export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
@@ -54,6 +57,9 @@ bpwatch start compile
 
 # Syntax sugar.
 source $BIN_DIR/utils
+
+# Import collection of warnings.
+source $BIN_DIR/warnings
 
 # Directory Hacks for path consistiency.
 APP_DIR='/app'
@@ -102,6 +108,12 @@ export PKG_CONFIG_PATH=/app/.heroku/vendor/lib/pkg-config:$BUILD_DIR/.heroku/ven
 
 # Switch to the repo's context.
 cd $BUILD_DIR
+
+# Warn for lack of Procfile.
+if [[ ! -f Procfile ]]; then
+  puts-warn 'Warning: Your application is missing a Procfile. This file tells Heroku how to run your application.'
+  puts-warn 'Learn more: https://devcenter.heroku.com/articles/procfile'
+fi
 
 # Experimental pre_compile hook.
 bpwatch start pre_compile

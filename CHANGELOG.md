@@ -1,5 +1,17 @@
 # Python Buildpack Changelog
 
+## v74 (2015-12-29)
+
+Added warnings for lack of Procfile.
+
+## v72 (2015-12-07)
+
+Updated default Python to 2.7.11.
+
+## v72 (2015-12-03)
+
+Added friendly warnings for common build failures.
+
 ## v70 (2015-10-29)
 
 Improved compatibility with multi and node.js buildpacks.
