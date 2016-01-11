@@ -50,6 +50,12 @@ if [ -n "$RACKSPACE_CDN_CONTAINER_PREFIX" ]; then
 
         $addon_bin/link-domain $RACKSPACE_MEDIA_CONTAINER $RACKSPACE_CDN_ALIAS_MEDIA
         $addon_bin/link-domain $RACKSPACE_STATIC_CONTAINER $RACKSPACE_CDN_ALIAS_STATIC
+
+        if [[ -n "$RACKSPACE_CDN_ALIAS_STATIC_PERSISTENT_PREFIX" ]]; then
+            export RACKSPACE_CDN_ALIAS_STATIC_PERSISTENT_DOMAIN="static-persistent.$RACKSPACE_CDN_ALIAS_DOMAIN"
+            $addon_bin/link-domain $RACKSPACE_STATIC_CONTAINER $RACKSPACE_CDN_ALIAS_STATIC_PERSISTENT_DOMAIN
+            echo "export RACKSPACE_CDN_ALIAS_STATIC_PERSISTENT_DOMAIN=$RACKSPACE_CDN_ALIAS_STATIC_PERSISTENT_DOMAIN" >> $BUILD_DIR/.profile.d/cloudfiles.sh
+        fi
     fi
     
     # Cleanup old buckets, and linkage
