@@ -42,11 +42,13 @@ def get_container_domain(name):
 
 if __name__ == "__main__":
     # Getting args
-    if len(sys.argv) != 3:
-        print("Usage: link-domain CONTAINER_NAME CNAME_ALIAS")
+    if len(sys.argv) < 3 or len(sys.argv) > 4:
+        print("Usage: link-domain CONTAINER_NAME CNAME_ALIAS "
+              "[true|false(update)]")
         exit(1)
     container_name = sys.argv[1]
     cname = sys.argv[2]
+    update_data = len(sys.argv) == 4
 
     # Setting creds
     identity_type = "rackspace"
@@ -64,7 +66,7 @@ if __name__ == "__main__":
         exit(1)
 
     # Test cname
-    if cname_exists(domain, cname):
+    if not update_data and cname_exists(domain, cname):
         print("The record CNAME => %s already exists." % cname)
         exit(0)
 
@@ -77,8 +79,12 @@ if __name__ == "__main__":
 
     # Domain, cname and container exists, can safely proceed
     print("Linking %s to %s" % (cname, container_domain))
-    domain.add_record({
-        "type": "CNAME",
-        "name": cname,
-        "data": container_domain,
-    })
+    if update_data and cname_exists(domain, cname):
+        record = domain.find_record("CNAME", cname)
+        record.update(data=container_domain)
+    else:
+        domain.add_record({
+            "type": "CNAME",
+            "name": cname,
+            "data": container_domain,
+        })
