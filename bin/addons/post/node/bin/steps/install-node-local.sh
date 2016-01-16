@@ -35,6 +35,7 @@ fi
 
     status "Installing dependencies"
     # Make npm output to STDOUT instead of its default STDERR
+    status "Using npm version: $(npm --version)"
     npm install --production --userconfig $build_dir/.npmrc 2>&1 | indent
 
     cd $current_dir_cache
