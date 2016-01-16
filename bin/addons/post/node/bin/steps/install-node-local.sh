@@ -8,6 +8,7 @@ if test -d $build_dependencies_cache/node_modules; then
 
     status "Prune old and unused dependencies"
     cd $build_dir
+    status "Using npm version: $(npm --version)"
     npm prune --production 2>&1 | indent
     cd $current_dir_cache
 
