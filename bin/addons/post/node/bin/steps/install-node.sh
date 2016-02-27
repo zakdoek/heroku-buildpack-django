@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Look in package.json's engines.node field for a semver range
-semver_range=$(cat $build_dir/package.json | $bp_dir/vendor/jq -r .engines.node)
+semver_range=$(cat $BUILD_DIR/package.json | $bp_dir/vendor/jq -r .engines.node)
 
 # Resolve node version using semver.io
 node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
@@ -28,8 +28,8 @@ fi
 do_install_node=true
 
 # Fetch the cached node version
-if [[ -f "$build_dependencies_cache/node-version" ]]; then
-    cached_node_version=$(cat "$build_dependencies_cache/node-version")
+if [[ -f "$NODE_INSTALL_TARGET_CACHE/node-version" ]]; then
+    cached_node_version=$(cat "$NODE_INSTALL_TARGET_CACHE/node-version")
 
     status "The cached node version is $cached_node_version"
     status "The current node version is $node_version"
@@ -44,24 +44,25 @@ if [[ "$do_install_node" = "true" ]]; then
     # Download node from Heroku's S3 mirror of nodejs.org/dist
     status "Downloading and installing node"
     node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
-    curl $node_url -s -o - | tar xzf - -C $build_dependencies
+    curl $node_url -s -o - | tar xzf - -C $NODE_INSTALL_TARGET
 
     # Move node (and npm)
-    rm -rf $build_dependencies/node  # Ensure the dest folder does not exist
-    mv $build_dependencies/node-v$node_version-linux-x64 $build_dependencies/node
-    chmod +x $build_dependencies/node/bin/*  # Make all the things executable
+    rm -rf $NODE_INSTALL_TARGET/node  # Ensure the dest folder does not exist
+    mv $NODE_INSTALL_TARGET/node-v$node_version-linux-x64 $NODE_INSTALL_TARGET/node
+    chmod +x $NODE_INSTALL_TARGET/node/bin/*  # Make all the things executable
 
     # Cache the node executable for future use
-    rm -rf $build_dependencies_cache/node
+    rm -rf $NODE_INSTALL_TARGET_CACHE/node
     status "Caching node executable for future builds"
-    cp -r $build_dependencies/node $build_dependencies_cache/node
-    echo "$node_version" > $build_dependencies_cache/node-version
+    cp -r $NODE_INSTALL_TARGET/node $NODE_INSTALL_TARGET_CACHE/node
+    echo "$node_version" > $NODE_INSTALL_TARGET_CACHE/node-version
 else
     # Copy from cache
     status "Fetching node runtime from cache"
-    rm -rf $build_dependencies/node
-    cp -r $build_dependencies_cache/node $build_dependencies/node
+    rm -rf $NODE_INSTALL_TARGET/node
+    cp -r $NODE_INSTALL_TARGET_CACHE/node $NODE_INSTALL_TARGET/node
 fi
 
 # Add to path
-PATH=$build_dependencies/node/bin:$PATH
+export PATH=$NODE_INSTALL_TARGET/node/bin:$PATH
+echo "export PATH=$NODE_INSTALL_TARGET/node/bin:\$PATH" >> $BUILD_DIR/.profile.d/node.sh

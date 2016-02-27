@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # If in cache, restore from cache
-if test -d $build_dependencies_cache/node_modules; then
+if test -d $NODE_INSTALL_TARGET_CACHE/node_modules; then
     status "Found existing node_modules environment, restoring"
-    rm -rf $build_dir/node_modules  # Ensure absense
-    cp -r $build_dependencies_cache/node_modules $build_dir
+    rm -rf $BUILD_DIR/node_modules  # Ensure absense
+    cp -r $NODE_INSTALL_TARGET_CACHE/node_modules $BUILD_DIR
 
     status "Prune old and unused dependencies"
-    cd $build_dir
+    cd $BUILD_DIR
     status "Using npm version: $(npm --version)"
     npm prune --production 2>&1 | indent
     cd $current_dir_cache
@@ -15,7 +15,7 @@ if test -d $build_dependencies_cache/node_modules; then
     # Test if different node than original build
     if [ "$do_install_node" = true ]; then
 
-        cd $build_dir
+        cd $BUILD_DIR
         status "Node version changed since last build; rebuilding dependencies"
         npm rebuild 2>&1 | indent
         cd $current_dir_cache
@@ -31,22 +31,22 @@ fi
         export_env_dir $env_dir
     fi
 
-    cd $build_dir
+    cd $BUILD_DIR
 
     status "Installing dependencies"
     # Make npm output to STDOUT instead of its default STDERR
     status "Using npm version: $(npm --version)"
-    npm install --production --userconfig $build_dir/.npmrc 2>&1 | indent
+    npm install --production --userconfig $BUILD_DIR/.npmrc 2>&1 | indent
 
     cd $current_dir_cache
 )
 
 # Purge the cache
-rm -rf $build_dependencies_cache/node_modules
-if test -d $build_dir/node_modules; then
-    cp -r $build_dir/node_modules $build_dependencies_cache/node_modules
+rm -rf $NODE_INSTALL_TARGET_CACHE/node_modules
+if test -d $BUILD_DIR/node_modules; then
+    cp -r $BUILD_DIR/node_modules $NODE_INSTALL_TARGET_CACHE/node_modules
 fi
 
 # Add node thing to environment
-PATH=$build_dir/node_modules/.bin:$PATH
-# echo "export PATH=\"$build_dir/node_modules/.bin:\$PATH\"" >> $build_activate
+PATH=$BUILD_DIR/node_modules/.bin:$PATH
+echo "export PATH=$BUILD_DIR/node_modules/.bin:\$PATH" >> $BUILD_DIR/.profile.d/node.sh

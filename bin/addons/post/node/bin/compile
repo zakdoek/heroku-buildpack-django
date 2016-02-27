@@ -12,18 +12,21 @@ cache_dir=$CACHE_DIR
 env_dir=$ENV_DIR
 bp_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
 
-# Client build directory
-build_dir=$BUILD_DIR
-
 # Cache the current dir
 current_dir_cache=$PWD
 current_home_cache=$HOME
 
 # Make deps and cached deps dirs and ensure their presence
-build_dependencies=$build_dir/build_dependencies
+build_dependencies=$BUILD_DIR/build_dependencies
 build_dependencies_cache=$cache_dir/build_dependencies
 mkdir -p $build_dependencies
 mkdir -p $build_dependencies_cache
+
+# Locate the install dirs
+NODE_INSTALL_TARGET=$BUILD_DIR/.nodejs
+NODE_INSTALL_TARGET_CACHE=$cache_dir/.nodejs
+mkdir -p $NODE_INSTALL_TARGET
+mkdir -p $NODE_INSTALL_TARGET_CACHE
 
 # Load some convenience functions like status(), echo(), and indent()
 source $bp_dir/bin/common.sh
@@ -40,10 +43,6 @@ trap cat_npm_debug_log ERR
 
 # Normalize the packages
 source $bp_dir/bin/steps/install-node.sh
-
-# Comment out, can be installed via ruby addon
-# Install compass
-# source $bp_dir/bin/steps/install-compass.sh
 
 # Install local node environment
 source $bp_dir/bin/steps/install-node-local.sh
